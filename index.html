@@ -2,229 +2,196 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Siete Vidas Dulces - Dashboard Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siete Vidas Dulces | Simulación Final</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { 
-            --rojo-principal: #d32f2f; 
-            --rojo-pastel: #ff8a80;    
-            --rojo-oscuro: #9a0007;
-            --fondo-crema: #fff5f2;    
-            --blanco: #ffffff;
-            --gris-texto: #4e342e;     
-            --borde-suave: #f8bbd0;
-            --azul-pago: #1976d2;
-        }
-        
-        body { background: var(--fondo-crema); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; color: var(--gris-texto); }
-        #app { display: flex; gap: 20px; max-width: 1450px; width: 100%; height: 95vh; }
-        
-        #tienda { flex: 2.5; background: var(--blanco); padding: 25px; border-radius: 25px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-top: 8px solid var(--rojo-principal); }
-        .grid-dulces { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-        
-        .card { 
-            background: #fff; border: 1px solid var(--borde-suave); padding: 15px; border-radius: 18px; 
-            text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .card:hover { border-color: var(--rojo-principal); transform: translateY(-3px); }
-        
-        #panel { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 320px; }
-        .seccion { background: var(--blanco); padding: 20px; border-radius: 25px; border: 1px solid var(--borde-suave); }
-        
-        #chat-box { height: 280px; overflow-y: auto; background: #fffcfc; border-radius: 15px; padding: 10px; border: 1px solid var(--rojo-pastel); margin-bottom: 10px; font-size: 0.9em; }
-        
-        button { background: var(--rojo-pastel); color: white; border: none; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        button:hover { background: var(--rojo-principal); }
-        
-        .item-carrito { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--borde-suave); font-size: 0.8em; }
-        .controles { display: flex; gap: 4px; }
-        .btn-edit { width: 22px; height: 22px; padding: 0; border-radius: 5px; background: #eee; color: #333; }
-        .btn-borrar { width: 22px; height: 22px; padding: 0; border-radius: 5px; background: #ffebee; color: #d32f2f; }
+        :root { --rojo: #d32f2f; --crema: #fff5f2; --oscuro: #212121; --verde: #2e7d32; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); margin: 0; padding-bottom: 50px; }
+        header { background: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--rojo); }
+        .logo-gato { font-size: 35px; background: var(--oscuro); color: white; width: 70px; height: 70px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; border: 4px solid var(--rojo); }
 
-        /* Estilos de Pago */
-        .metodos-pago-box { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-top: 10px; border: 1px solid #ddd; }
-        select { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
+        /* Tienda */
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .card { background: white; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #ddd; transition: 0.3s; }
+        .card:hover { border-color: var(--rojo); transform: translateY(-3px); }
         
-        #ticket-final { 
-            display: none; background: #e3f2fd; border: 2px dashed var(--azul-pago); 
-            padding: 15px; border-radius: 15px; margin-top: 15px; text-align: center;
-        }
+        /* Botones y Sidebar */
+        .btn-flotante { position: fixed; z-index: 1000; cursor: pointer; border-radius: 50px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-weight: bold; }
+        .cart-trigger { top: 20px; right: 20px; background: var(--rojo); color: white; padding: 12px 20px; }
+        .chat-trigger { bottom: 20px; right: 20px; background: var(--oscuro); color: white; width: 60px; height: 60px; font-size: 30px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--rojo); }
+        
+        #sidebar { position: fixed; right: -400px; top: 0; width: 350px; height: 100%; background: white; z-index: 1005; transition: 0.4s; padding: 20px; box-shadow: -5px 0 20px rgba(0,0,0,0.1); overflow-y: auto; }
+        #sidebar.open { right: 0; }
+        .item-carrito { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--rojo); display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { cursor: pointer; border: none; background: none; font-size: 1.2rem; filter: grayscale(1); }
+        
+        .metodo-pago { border: 2px solid #eee; padding: 10px; border-radius: 10px; margin-top: 8px; cursor: pointer; }
+        .metodo-pago.selected { border-color: var(--verde); background: #f1f8f1; }
+        .btn-main { background: var(--rojo); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* Modal */
+        #modal-2fa { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* Chat */
+        #chat-window { position: fixed; bottom: 90px; right: 20px; width: 320px; height: 450px; background: white; border-radius: 20px; border: 3px solid var(--rojo); display: none; flex-direction: column; z-index: 1001; }
+        #chat-window.active { display: flex; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.85em; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; }
+        .msg-u { align-self: flex-end; background: var(--rojo); color: white; }
+        .msg-a { align-self: flex-start; background: #eee; color: var(--oscuro); }
     </style>
 </head>
 <body>
-    <div id="app">
-        <section id="tienda">
-            <h2 style="text-align: center;">🐈‍⬛ Siete Vidas Dulces 🍬</h2>
-            <div class="grid-dulces" id="contenedor-grid"></div>
-        </section>
 
-        <div id="panel">
-            <section class="seccion">
-                <h3>🛍️ Mi Pedido</h3>
-                <div id="lista-compras"></div>
-                <p>Total: <b style="color: var(--rojo-principal);">$<span id="total-precio">0.00</span></b></p>
-                
-                <div class="metodos-pago-box">
-                    <label style="font-size: 0.75em; font-weight: bold;">MÉTODO DE PAGO:</label>
-                    <select id="metodo-pago">
-                        <option value="TARJETA">💳 Tarjeta de Crédito/Débito</option>
-                        <option value="OXXO">🏪 Efectivo (OXXO/7-Eleven)</option>
-                    </select>
-                    <button onclick="iniciarProcesoPago()" style="background: var(--azul-pago);">Validar y Comprar</button>
-                </div>
+    <header>
+        <div class="logo-gato">🐈‍⬛</div>
+        <h1>Siete Vidas Dulces</h1>
+        <p>Antojos que dan vida</p>
+    </header>
 
-                <div id="ticket-final">
-                    <b style="color: var(--azul-pago);">✓ TRANSACCIÓN EXITOSA</b><br>
-                    <small id="metodo-usado"></small>
-                    <div style="font-size: 1.1em; font-weight: bold; margin: 8px 0;" id="token-final"></div>
-                    <small>Usa este token para recoger tu pedido.</small>
-                </div>
-            </section>
+    <button class="btn-flotante cart-trigger" onclick="toggleSidebar()">🛒 Mi Pedido (<span id="cart-count">0</span>)</button>
+    <button class="btn-flotante chat-trigger" onclick="toggleChat()">🐈‍⬛</button>
 
-            <section class="seccion">
-                <h3>💬 Ayudante 🐈‍⬛</h3>
-                <div id="chat-box"></div>
-                <form id="chat-form" style="display:flex; gap:5px;">
-                    <input type="text" id="user-input" placeholder="Pregunta algo..." required style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd;">
-                    <button type="submit" style="width:50px;">🚀</button>
-                </form>
-            </section>
+    <div id="sidebar">
+        <h2 onclick="toggleSidebar()" style="cursor:pointer; color:var(--rojo);">✕ CERRAR</h2>
+        <div id="lista-carrito"></div>
+        <hr>
+        <h3>Total: <span id="total-precio">$0.00</span></h3>
+        <p><b>Elige Método de Pago:</b></p>
+        <div class="metodo-pago" onclick="selMet('Mercado Pago', this)">🔵 Mercado Pago</div>
+        <div class="metodo-pago" onclick="selMet('Apple Pay', this)">🍎 Apple Pay</div>
+        <div class="metodo-pago" onclick="selMet('PayPal', this)">🅿️ PayPal</div>
+        <button class="btn-main" id="btn-comprar" style="display:none;" onclick="abrir2FA()">PAGAR AHORA</button>
+    </div>
+
+    <div class="container"><div class="grid" id="grid"></div></div>
+
+    <div id="modal-2fa">
+        <div class="modal-content" id="modal-dinamico">
+            <h3 style="color:var(--rojo);">Verificación Requerida</h3>
+            <p style="font-size:0.8rem;">Escanea o introduce el código de seguridad.</p>
+            <div id="qrcode" style="display:flex; justify-content:center; margin:15px 0;"></div>
+            <input type="number" id="pin-input" placeholder="000000" style="width:100%; text-align:center; font-size:1.8rem; padding:10px; border:2px solid #ddd; border-radius:10px;">
+            <button class="btn-main" onclick="procesarPagoDefinitivo()">CONFIRMAR CARGO</button>
+            <p onclick="cerrar2FA()" style="color:#999; cursor:pointer; margin-top:15px; font-size:0.8rem;">Cancelar</p>
         </div>
     </div>
 
+    <div id="chat-window">
+        <div style="background:var(--rojo); color:white; padding:12px; text-align:center; font-weight:bold;">🐈‍⬛ Gato Asistente</div>
+        <div id="chat-box"></div>
+        <form id="chat-form" style="padding:10px; display:flex; background:#f4f4f4; border-top:1px solid #ddd;">
+            <input type="text" id="chat-input" placeholder="¿Qué dulce buscas?" required style="flex:1; border-radius:20px; border:1px solid #ccc; padding:10px;">
+            <button type="submit" style="background:var(--rojo); color:white; border:none; border-radius:50%; width:40px; height:40px; margin-left:5px; cursor:pointer;">🚀</button>
+        </form>
+    </div>
+
     <script>
-        const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-        const API_KEY = "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";
-
-        let carrito = [];
-
-        const productos = [
-            { n: "Mazapán De la Rosa", s: 6, b: 130 }, { n: "Pelón Pelo Rico", s: 12, b: 110 },
-            { n: "Pulparindo", s: 5, b: 85 }, { n: "Alegría Amaranto", s: 15, b: 140 },
-            { n: "Borrachitos", s: 2, b: 45 }, { n: "Rockaleta", s: 8, b: 150 },
-            { n: "Obleas con Cajeta", s: 18, b: 160 }, { n: "Palanqueta Nuez", s: 22, b: 200 },
-            { n: "Cocada Blanca", s: 18, b: 170 }, { n: "Manzana Chamoy", s: 35, b: 300 },
-            { n: "Ate de Membrillo", s: 40, b: 380 }, { n: "Puerquito de Pan", s: 12, b: 110 },
-            { n: "Duvalín Bisabor", s: 7, b: 120 }, { n: "Chicles Canel's", s: 2, b: 90 },
-            { n: "Pica Fresa", s: 1, b: 70 }, { n: "Skwinkles Rellenos", s: 14, b: 135 },
-            { n: "Lucas Muecas", s: 15, b: 145 }, { n: "Glorias Linares", s: 12, b: 210 },
-            { n: "Jamoncillo Leche", s: 25, b: 230 }, { n: "Camote Puebla", s: 20, b: 180 },
-            { n: "Muégano Tradicional", s: 10, b: 95 }, { n: "Limón con Coco", s: 15, b: 140 },
-            { n: "Chocomelvavisco", s: 10, b: 180 }, { n: "Barra Chocolate", s: 22, b: 350 },
-            { n: "Vaso de Cajeta", s: 8, b: 150 }, { n: "Piruleta Rayada", s: 6, b: 110 },
-            { n: "Galleta Sol", s: 5, b: 90 }, { n: "Morelianas", s: 15, b: 140 },
-            { n: "Tama-Roca", s: 10, b: 95 }, { n: "Bandera de Coco", s: 15, b: 140 }
+        const API_KEY = "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";
+        const dulces = [
+            { n: "Mazapán De la Rosa", s: 6, b: 130 }, { n: "Pelón Pelo Rico", s: 12, b: 110 }, { n: "Pulparindo", s: 5, b: 85 },
+            { n: "Alegría Amaranto", s: 15, b: 140 }, { n: "Borrachitos", s: 2, b: 45 }, { n: "Rockaleta", s: 8, b: 150 },
+            { n: "Obleas con Cajeta", s: 18, b: 160 }, { n: "Palanqueta Nuez", s: 22, b: 200 }, { n: "Cocada Blanca", s: 18, b: 170 },
+            { n: "Manzana Chamoy", s: 35, b: 300 }, { n: "Ate de Membrillo", s: 40, b: 380 }, { n: "Puerquito de Pan", s: 12, b: 110 },
+            { n: "Duvalín Bisabor", s: 7, b: 120 }, { n: "Chicles Canel's", s: 2, b: 90 }, { n: "Pica Fresa", s: 1, b: 70 },
+            { n: "Skwinkles Rellenos", s: 14, b: 135 }, { n: "Lucas Muecas", s: 15, b: 145 }, { n: "Glorias Linares", s: 12, b: 210 },
+            { n: "Jamoncillo Leche", s: 25, b: 230 }, { n: "Camote Puebla", s: 20, b: 180 }, { n: "Muégano Tradicional", s: 10, b: 95 },
+            { n: "Limón con Coco", s: 15, b: 140 }, { n: "Chocomelvavisco", s: 10, b: 180 }, { n: "Barra Chocolate", s: 22, b: 350 },
+            { n: "Vaso de Cajeta", s: 8, b: 150 }, { n: "Piruleta Rayada", s: 6, b: 110 }, { n: "Galleta Sol", s: 5, b: 90 },
+            { n: "Morelianas", s: 15, b: 140 }, { n: "Tama-Roca", s: 10, b: 95 }, { n: "Bandera de Coco", s: 15, b: 140 }
         ];
 
-        const grid = document.getElementById("contenedor-grid");
-        productos.forEach((p, i) => {
-            grid.innerHTML += `
-                <div class="card">
-                    <span>${p.n}</span>
-                    <b>Pz: $${p.s} | Bol: $${p.b}</b>
-                    <select id="modo-${i}"><option value="Pz">Suelto</option><option value="Bol">Bolsa</option></select>
-                    <input type="number" id="cant-${i}" value="1" min="1" style="width: 50px; margin: 0 auto 10px;">
-                    <button onclick="agregar(${i})">🛒 Agregar</button>
-                </div>`;
+        let cart = []; let met = "";
+
+        const g = document.getElementById("grid");
+        dulces.forEach((d, i) => {
+            g.innerHTML += `<div class="card"><b>${d.n}</b><p style="color:var(--rojo)">$${d.s} / $${d.b}</p>
+                <select id="m-${i}"><option value="s">Pieza</option><option value="b">Bolsa</option></select>
+                <button onclick="add(${i})" class="btn-main" style="padding:6px;">Añadir</button></div>`;
         });
 
-        function agregar(idx) {
-            const p = productos[idx];
-            const modo = document.getElementById(`modo-${idx}`).value;
-            const cant = parseInt(document.getElementById(`cant-${idx}`).value);
-            const precio = modo === "Bol" ? p.b : p.s;
-            const existente = carrito.find(item => item.n === p.n && item.t === modo);
-            if (existente) existente.c += cant;
-            else carrito.push({ n: p.n, c: cant, p: precio, t: modo });
-            renderCarrito();
+        function add(idx) {
+            const m = document.getElementById(`m-${idx}`).value;
+            cart.push({ id: Date.now(), n: dulces[idx].n, p: m==='b'?dulces[idx].b:dulces[idx].s });
+            upd();
         }
 
-        function cambiarCant(index, delta) {
-            carrito[index].c += delta;
-            if (carrito[index].c <= 0) carrito.splice(index, 1);
-            renderCarrito();
+        function del(id) { cart = cart.filter(x => x.id !== id); upd(); }
+
+        function upd() {
+            const l = document.getElementById("lista-carrito");
+            let t = 0; l.innerHTML = "";
+            cart.forEach(x => { t += x.p; l.innerHTML += `<div class="item-carrito">${x.n} ($${x.p}) <button class="btn-del" onclick="del(${x.id})">🗑️</button></div>`; });
+            document.getElementById("cart-count").innerText = cart.length;
+            document.getElementById("total-precio").innerText = `$${t.toFixed(2)}`;
         }
 
-        function borrarItem(index) {
-            carrito.splice(index, 1);
-            renderCarrito();
+        function selMet(m, el) {
+            document.querySelectorAll('.metodo-pago').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected'); met = m;
+            document.getElementById("btn-comprar").style.display = "block";
         }
 
-        function renderCarrito() {
-            const lista = document.getElementById("lista-compras");
-            let total = 0;
-            lista.innerHTML = "";
-            carrito.forEach((item, i) => {
-                total += item.p * item.c;
-                lista.innerHTML += `
-                    <div class="item-carrito">
-                        <div style="flex:1;"><b>${item.c}x</b> ${item.n}</div>
-                        <div class="controles">
-                            <button class="btn-edit" onclick="cambiarCant(${i}, 1)">+</button>
-                            <button class="btn-edit" onclick="cambiarCant(${i}, -1)">-</button>
-                            <button class="btn-borrar" onclick="borrarItem(${i})">✕</button>
-                        </div>
-                    </div>`;
-            });
-            document.getElementById("total-precio").innerText = total.toFixed(2);
+        function abrir2FA() {
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: "otpauth://totp/Siete?secret=KVKFKRJTMRUXS4BQ", width: 120, height: 120 });
+            document.getElementById("modal-2fa").style.display = "flex";
         }
 
-        // --- LÓGICA DE PAGO Y VERIFICACIÓN ---
-        function iniciarProcesoPago() {
-            if (carrito.length === 0) return alert("¡El carrito está vacío, carnal!");
-
-            const metodo = document.getElementById("metodo-pago").value;
-            // Token de verificación simulado (OTP)
-            const otpEnviado = Math.floor(1000 + Math.random() * 9000);
-            alert(`🔐 VERIFICACIÓN DE SEGURIDAD\n\nTu código de autorización es: ${otpEnviado}`);
-
-            const otpUsuario = prompt("Ingresa el código de 4 dígitos enviado a tu dispositivo:");
-
-            if (otpUsuario == otpEnviado) {
-                confirmarVenta(metodo);
-            } else {
-                alert("❌ Token de verificación incorrecto. Inténtalo de nuevo.");
-            }
-        }
-
-        function confirmarVenta(metodo) {
-            const prefijo = metodo === "TARJETA" ? "TC" : "OX";
-            const tokenFinal = `${prefijo}-${Math.random().toString(36).substr(2, 6).toUpperCase()}-SV`;
-
-            document.getElementById("metodo-usado").innerText = `Pagado con: ${metodo}`;
-            document.getElementById("token-final").innerText = tokenFinal;
-            document.getElementById("ticket-final").style.display = "block";
+        // --- PAGO GARANTIZADO ---
+        function procesarPagoDefinitivo() {
+            const pin = document.getElementById("pin-input").value;
+            if (pin.length < 6) return alert("Escribe el código de 6 dígitos.");
             
-            alert(`✅ Pago verificado. Tu folio es: ${tokenFinal}`);
-            carrito = [];
-            renderCarrito();
+            const total = document.getElementById("total-precio").innerText;
+            document.getElementById("modal-dinamico").innerHTML = `
+                <div style="font-size:50px;">✅</div>
+                <h2 style="color:var(--verde);">¡PAGO AUTORIZADO!</h2>
+                <div style="text-align:left; background:#f4f4f4; padding:15px; border-radius:10px; font-family:monospace; font-size:0.8rem;">
+                    <b>COMPROBANTE BANCARIO</b><br>
+                    ---------------------------<br>
+                    Folio: SV-${Math.floor(Math.random()*899999 + 100000)}<br>
+                    Método: ${met}<br>
+                    Monto: ${total}<br>
+                    Estado: EXITOSO
+                </div>
+                <button class="btn-main" onclick="location.reload()">ACEPTAR</button>
+            `;
+            cart = []; upd();
         }
 
-        // --- CHAT IA ---
+        // --- IA OPTIMIZADA ---
         document.getElementById("chat-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const input = document.getElementById("user-input");
-            const box = document.getElementById("chat-box");
-            const msg = input.value;
-            box.innerHTML += `<p><b>Tú:</b> ${msg}</p>`;
-            input.value = "";
+            const i = document.getElementById("chat-input"); const b = document.getElementById("chat-box");
+            const val = i.value; i.value = "";
+            b.innerHTML += `<div class="msg msg-u">${val}</div>`;
+            
+            const promptContext = `Eres el asistente de "Siete Vidas Dulces". Eres muy amable y servicial. 
+            CATÁLOGO: ${JSON.stringify(dulces)}. 
+            REGLAS: 
+            1. Solo habla de dulces y precios del catálogo. 
+            2. Si preguntan por algo que NO es dulce, di amablemente que no puedes ayudar con eso. 
+            3. Si preguntan por un dulce que NO está en la lista, di que se agotó pero que podrías conseguirlo pronto y dales un precio aproximado basado en similares.`;
 
             try {
-                const res = await fetch(API_URL, {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + API_KEY },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{ 
-                            role: "system", 
-                            content: `Eres el Ayudante de "Siete Vidas Dulces". Ayuda con precios y existencias. Actitud mexicana, amable y usa emojis de gato , y si te preunta de otra cosa que no sea de dulces, diles que no puedes  ayudarlos, si te preguntan de algun otro dulce que no este en el catalogo diles que no te a llegado o se agoto o que lo puedes conseguir si gusta🐈‍⬛.` 
-                        }, { role: "user", content: msg }]
-                    })
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role:"system", content:promptContext}, {role:"user", content:val}] })
                 });
-                const data = await res.json();
-                box.innerHTML += `<p style="color:var(--rojo-oscuro)"><b>Ayudante 🐈‍⬛:</b> ${data.choices[0].message.content}</p>`;
-                box.scrollTop = box.scrollHeight;
-            } catch (e) { box.innerHTML += "<p>Ayudante fuera de línea...</p>"; }
+                const d = await r.json();
+                b.innerHTML += `<div class="msg msg-a">🐈‍⬛: ${d.choices[0].message.content}</div>`;
+            } catch(e) { b.innerHTML += `<div class="msg msg-a">🐈‍⬛: ¡Uy! Mi conexión de gato falló.</div>`; }
+            b.scrollTop = b.scrollHeight;
         });
+
+        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
+        function toggleChat() { document.getElementById("chat-window").classList.toggle("active"); }
+        function cerrar2FA() { document.getElementById("modal-2fa").style.display = "none"; }
     </script>
 </body>
-</html>
+</html>s
